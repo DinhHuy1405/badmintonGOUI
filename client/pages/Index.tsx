@@ -3,11 +3,12 @@ import { Footer } from "@/components/layout/Footer";
 import { SearchBar } from "@/components/hotel/SearchBar";
 import { FilterSidebar } from "@/components/hotel/FilterSidebar";
 import { HotelCard } from "@/components/hotel/HotelCard";
+import { CompactHotelCard } from "@/components/hotel/CompactHotelCard";
 import { MapComponent } from "@/components/hotel/MapComponent";
 import { MOCK_HOTELS } from "@/lib/mock-data";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Map, List, SlidersHorizontal, X, ArrowLeft } from "lucide-react";
+import { Map, List, SlidersHorizontal, X, ArrowLeft, RefreshCcw, Star, DollarSign, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,7 @@ export default function Index() {
   const [view, setView] = useState<"list" | "split" | "map">("list");
   const [sortBy, setSortBy] = useState("Recommended");
   const [activeHotelId, setActiveHotelId] = useState<string | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const sortOptions = ["Recommended", "Price (lowest first)", "Star rating (highest first)", "Guest rating"];
 
@@ -29,6 +30,13 @@ export default function Index() {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
+    // On full map view mobile, scroll carousel
+    if (view === "map" && carouselRef.current) {
+      const element = document.getElementById(`carousel-card-${id}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    }
   };
 
   return (
@@ -38,29 +46,91 @@ export default function Index() {
       <main className="flex-1 flex flex-col">
         {/* Full Screen Map View Overlay */}
         {view === "map" && (
-          <div className="fixed inset-0 z-[60] bg-white flex flex-col">
-            <div className="h-16 border-b flex items-center justify-between px-6 shrink-0 bg-white shadow-sm">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => setView("list")} className="rounded-full">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div className="flex flex-col">
-                  <h2 className="text-sm font-bold leading-none">Hotels in Hanoi</h2>
-                  <span className="text-xs text-slate-500 mt-1">{MOCK_HOTELS.length} hotels found</span>
+          <div className="fixed inset-0 z-[60] bg-white flex flex-col animate-in slide-in-from-bottom duration-300">
+            {/* Map Header Overlay (Floating) */}
+            <div className="absolute top-4 left-4 right-4 z-[70] flex flex-col gap-3 pointer-events-none">
+              <div className="flex items-center justify-between pointer-events-auto">
+                <div className="flex items-center gap-2">
+                  <Button variant="white" size="icon" onClick={() => setView("list")} className="rounded-full shadow-xl h-10 w-10 border-none">
+                    <ArrowLeft className="h-5 w-5 text-slate-700" />
+                  </Button>
+                  <div className="bg-white px-4 py-2 rounded-full shadow-xl border-none flex items-center gap-2 h-10">
+                    <span className="text-sm font-bold text-slate-900">Hanoi, Vietnam</span>
+                    <span className="text-xs text-slate-500 font-medium">• {MOCK_HOTELS.length} hotels</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                   <Button variant="white" size="icon" onClick={() => setView("split")} className="hidden md:flex rounded-full shadow-xl h-10 w-10 border-none">
+                      <List className="h-5 w-5 text-slate-700" />
+                   </Button>
+                   <Button variant="white" size="icon" onClick={() => setView("list")} className="rounded-full shadow-xl h-10 w-10 border-none">
+                      <X className="h-5 w-5 text-slate-700" />
+                   </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                 <Button variant="outline" size="sm" onClick={() => setView("split")} className="hidden md:flex gap-2 font-bold rounded-lg h-9">
-                    <List className="h-4 w-4" />
-                    Split view
-                 </Button>
-                 <Button variant="ghost" size="icon" onClick={() => setView("list")} className="rounded-full">
-                   <X className="h-5 w-5" />
+
+              {/* Filter Chips Overlay */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pointer-events-auto pb-2">
+                <Button variant="white" className="h-8 rounded-full shadow-lg border-none text-[10px] font-bold px-3 gap-1.5 flex shrink-0">
+                  <DollarSign className="h-3 w-3" /> Price
+                </Button>
+                <Button variant="white" className="h-8 rounded-full shadow-lg border-none text-[10px] font-bold px-3 gap-1.5 flex shrink-0">
+                  <Star className="h-3 w-3" /> Rating
+                </Button>
+                <Button variant="white" className="h-8 rounded-full shadow-lg border-none text-[10px] font-bold px-3 gap-1.5 flex shrink-0">
+                  <RefreshCcw className="h-3 w-3" /> Filters
+                </Button>
+              </div>
+
+              {/* Search this area button */}
+              <div className="flex justify-center pointer-events-auto mt-2">
+                 <Button variant="white" className="rounded-full shadow-xl border-none font-bold text-xs h-9 px-6 gap-2 text-primary">
+                    <RefreshCcw className="h-3.5 w-3.5" />
+                    Search this area
                  </Button>
               </div>
             </div>
+
             <div className="flex-1 relative">
               <MapComponent hotels={MOCK_HOTELS} activeHotelId={activeHotelId} onPinClick={handlePinClick} />
+              
+              {/* Desktop Side Results Overlay */}
+              <div className="absolute top-24 left-4 bottom-28 w-[320px] hidden md:block overflow-y-auto no-scrollbar space-y-3 pointer-events-none">
+                <div className="space-y-3 pointer-events-auto pb-4">
+                  {MOCK_HOTELS.map((hotel) => (
+                    <div key={hotel.id} id={`map-card-${hotel.id}`}>
+                       <CompactHotelCard 
+                        hotel={hotel} 
+                        isActive={activeHotelId === hotel.id}
+                        onClick={() => handlePinClick(hotel.id)}
+                       />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile Carousel Overlay */}
+              <div className="absolute bottom-6 left-0 right-0 z-[70] pointer-events-none">
+                <div 
+                  ref={carouselRef}
+                  className="flex gap-3 overflow-x-auto px-6 no-scrollbar snap-x pointer-events-auto pb-2"
+                >
+                   {MOCK_HOTELS.map((hotel) => (
+                    <div 
+                      key={hotel.id} 
+                      id={`carousel-card-${hotel.id}`}
+                      className="snap-center shrink-0"
+                    >
+                       <CompactHotelCard 
+                        hotel={hotel} 
+                        variant="carousel"
+                        isActive={activeHotelId === hotel.id}
+                        onClick={() => handlePinClick(hotel.id)}
+                       />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -93,7 +163,7 @@ export default function Index() {
               "flex-1 flex flex-col",
               view === "split" ? "lg:flex-row h-full" : "space-y-6"
             )}>
-              {/* List Section */}
+              {/* List Section Area */}
               <div className={cn(
                 "flex-1 flex flex-col",
                 view === "split" ? "lg:w-[450px] xl:w-[500px] lg:shrink-0 bg-white border-r overflow-y-auto no-scrollbar" : "space-y-6"
@@ -103,7 +173,7 @@ export default function Index() {
                   <div className="p-4 border-b bg-white sticky top-0 z-10 flex items-center justify-between">
                     <div className="flex flex-col">
                        <h2 className="text-lg font-bold">Hanoi</h2>
-                       <p className="text-xs text-slate-500">{MOCK_HOTELS.length} hotels • Mar 02 - Mar 03</p>
+                       <p className="text-xs text-slate-500">{MOCK_HOTELS.length} hotels found</p>
                     </div>
                     <div className="flex gap-2">
                        <Button variant="outline" size="sm" onClick={() => setView("map")} className="rounded-lg gap-2 h-9 font-bold">
@@ -221,7 +291,7 @@ export default function Index() {
       {view === "list" && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 lg:hidden">
           <Button 
-            onClick={() => setView("split")}
+            onClick={() => setView("map")}
             className="rounded-full shadow-2xl px-6 h-12 gap-2 font-bold bg-slate-900 text-white hover:bg-slate-800"
           >
             <Map className="h-5 w-5" />
