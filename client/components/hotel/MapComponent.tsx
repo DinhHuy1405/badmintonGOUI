@@ -1,6 +1,7 @@
-import { MapPin, Navigation, ZoomIn, ZoomOut } from "lucide-react";
+import { MapPin, Navigation, ZoomIn, ZoomOut, Star } from "lucide-react";
 import { Hotel } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MapComponentProps {
   hotels: Hotel[];
