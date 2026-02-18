@@ -5,13 +5,41 @@ import { Button } from "@/components/ui/button";
 import { FILTERS } from "@/lib/mock-data";
 import { useState } from "react";
 
-export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
-  const [priceRange, setPriceRange] = useState([0, 500000]);
+export function FilterSidebar({
+  onMapView,
+  skillLevels,
+  setSkillLevels,
+  districts,
+  setDistricts,
+  priceRange,
+  setPriceRange,
+  amenities,
+  setAmenities,
+  onClear
+}: {
+  onMapView?: () => void;
+  skillLevels: string[];
+  setSkillLevels: (levels: string[]) => void;
+  districts: string[];
+  setDistricts: (districts: string[]) => void;
+  priceRange: number[];
+  setPriceRange: (range: number[]) => void;
+  amenities: string[];
+  setAmenities: (amenities: string[]) => void;
+  onClear: () => void;
+}) {
+  const toggleItem = (list: string[], setList: (newList: string[]) => void, item: string) => {
+    if (list.includes(item)) {
+      setList(list.filter(i => i !== item));
+    } else {
+      setList([...list, item]);
+    }
+  };
 
   return (
     <aside className="w-full space-y-6">
       {/* Map Preview */}
-      <div 
+      <div
         onClick={onMapView}
         className="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
       >
@@ -30,7 +58,7 @@ export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
           <Filter className="h-5 w-5" />
           Lọc kết quả
         </h2>
-        <Button variant="ghost" size="sm" className="text-primary h-8 gap-1 p-1">
+        <Button variant="ghost" size="sm" onClick={onClear} className="text-primary h-8 gap-1 p-1">
           <RotateCcw className="h-4 w-4" />
           Xóa
         </Button>
@@ -43,9 +71,13 @@ export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
         <div className="space-y-3">
           {FILTERS.skillLevels.map((level) => (
             <div key={level} className="flex items-center gap-2">
-              <Checkbox id={level} />
+              <Checkbox
+                id={`level-${level}`}
+                checked={skillLevels.includes(level)}
+                onCheckedChange={() => toggleItem(skillLevels, setSkillLevels, level)}
+              />
               <label
-                htmlFor={level}
+                htmlFor={`level-${level}`}
                 className="text-sm font-medium flex items-center gap-1 cursor-pointer"
               >
                 {level}
@@ -62,9 +94,13 @@ export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
         <div className="space-y-3">
           {FILTERS.districts.map((district) => (
             <div key={district} className="flex items-center gap-2">
-              <Checkbox id={district} />
+              <Checkbox
+                id={`district-${district}`}
+                checked={districts.includes(district)}
+                onCheckedChange={() => toggleItem(districts, setDistricts, district)}
+              />
               <label
-                htmlFor={district}
+                htmlFor={`district-${district}`}
                 className="text-sm font-medium flex items-center gap-1 cursor-pointer"
               >
                 {district}
@@ -77,7 +113,7 @@ export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
       <div className="space-y-4">
         <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider">Chi phí / người</h3>
         <Slider
-          defaultValue={priceRange}
+          value={priceRange}
           max={500000}
           step={10000}
           onValueChange={setPriceRange}
@@ -94,9 +130,13 @@ export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
         <div className="space-y-3">
           {FILTERS.amenities.map((amenity) => (
             <div key={amenity} className="flex items-center gap-2">
-              <Checkbox id={amenity} />
+              <Checkbox
+                id={`amenity-${amenity}`}
+                checked={amenities.includes(amenity)}
+                onCheckedChange={() => toggleItem(amenities, setAmenities, amenity)}
+              />
               <label
-                htmlFor={amenity}
+                htmlFor={`amenity-${amenity}`}
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
                 {amenity}

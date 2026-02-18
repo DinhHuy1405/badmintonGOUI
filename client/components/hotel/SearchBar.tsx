@@ -9,11 +9,23 @@ import { CalendarIcon, MapPin, Users, Search, Clock, Award } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { FILTERS } from "@/lib/mock-data";
 
-export function SearchBar() {
-  const [destination, setDestination] = useState("Hà Nội");
-  const [date, setDate] = useState<Date | undefined>(new Date(2026, 2, 2));
-  const [skillLevel, setSkillLevel] = useState("Tất cả");
-
+export function SearchBar({
+  destination,
+  setDestination,
+  date,
+  setDate,
+  skillLevel,
+  setSkillLevel,
+  onSearch
+}: {
+  destination: string;
+  setDestination: (val: string) => void;
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+  skillLevel: string;
+  setSkillLevel: (val: string) => void;
+  onSearch: () => void;
+}) {
   return (
     <div className="w-full bg-white shadow-2xl rounded-2xl p-2 flex flex-col lg:flex-row gap-0 border border-slate-200 items-stretch">
       <div className="flex-1 flex flex-col p-3 hover:bg-slate-50 transition-colors rounded-xl lg:rounded-none lg:rounded-l-xl border-b lg:border-b-0 lg:border-r border-slate-100">
@@ -73,7 +85,10 @@ export function SearchBar() {
       </div>
 
       <div className="p-2 lg:p-3 flex items-center">
-        <Button className="w-full lg:w-auto h-full lg:h-14 lg:aspect-square lg:p-0 rounded-xl font-bold gap-2 text-lg shadow-lg hover:scale-105 transition-transform">
+        <Button
+          onClick={onSearch}
+          className="w-full lg:w-auto h-full lg:h-14 lg:aspect-square lg:p-0 rounded-xl font-bold gap-2 text-lg shadow-lg hover:scale-105 transition-transform"
+        >
           <Search className="h-6 w-6" />
           <span className="lg:hidden">Tìm kèo ngay</span>
         </Button>
