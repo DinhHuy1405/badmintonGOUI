@@ -1,15 +1,30 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Star, Filter, RotateCcw } from "lucide-react";
+import { Star, Filter, RotateCcw, MapPin, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FILTERS } from "@/lib/mock-data";
 import { useState } from "react";
 
-export function FilterSidebar() {
+export function FilterSidebar({ onMapView }: { onMapView?: () => void }) {
   const [priceRange, setPriceRange] = useState([0, 10000000]);
 
   return (
     <aside className="w-full space-y-6">
+      {/* Map Preview */}
+      <div
+        onClick={onMapView}
+        className="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+      >
+        <div className="h-32 bg-[url('https://images.unsplash.com/photo-1598970434795-0c54fe7c0648?auto=format&fit=crop&q=80&w=400')] bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500"></div>
+        <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors"></div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <Button variant="white" className="gap-2 font-bold shadow-xl px-6 rounded-full group-hover:scale-105 transition-transform pointer-events-none">
+            <Map className="h-4 w-4" />
+            Show on map
+          </Button>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between border-b pb-4">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Filter className="h-5 w-5" />
