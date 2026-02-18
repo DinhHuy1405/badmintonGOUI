@@ -4,47 +4,66 @@ import { Button } from "@/components/ui/button";
 
 interface MapComponentProps {
   hotels: Hotel[];
+  activeHotelId?: string | null;
+  onPinClick?: (id: string) => void;
 }
 
-export function MapComponent({ hotels }: MapComponentProps) {
+export function MapComponent({ hotels, activeHotelId, onPinClick }: MapComponentProps) {
   return (
-    <div className="relative w-full h-[600px] bg-slate-200 rounded-2xl overflow-hidden border border-slate-300 shadow-inner">
+    <div className="relative w-full h-full bg-slate-200 overflow-hidden border-l border-slate-300">
       {/* Abstract Map Background (Stylized) */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <svg width="100%" height="100%" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="100%" height="100%" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <path d="M0 0H800V600H0V0Z" fill="#E2E8F0" />
-          <path d="M100 0L120 600M250 0L230 600M400 0L410 600M600 0L580 600M750 0L770 600" stroke="#CBD5E1" strokeWidth="2" />
-          <path d="M0 100L800 120M0 250L800 230M0 400L800 410M0 550L800 530" stroke="#CBD5E1" strokeWidth="2" />
-          <circle cx="400" cy="300" r="150" stroke="#94A3B8" strokeWidth="1" strokeDasharray="4 4" />
-          <path d="M300 200Q400 100 500 200T700 300" stroke="#94A3B8" strokeWidth="4" opacity="0.2" />
+          <path d="M100 0L120 600M250 0L230 600M400 0L410 600M600 0L580 600M750 0L770 600" stroke="#CBD5E1" strokeWidth="1" />
+          <path d="M0 100L800 120M0 250L800 230M0 400L800 410M0 550L800 530" stroke="#CBD5E1" strokeWidth="1" />
+          <circle cx="400" cy="300" r="150" stroke="#94A3B8" strokeWidth="0.5" strokeDasharray="4 4" />
         </svg>
       </div>
 
-      {/* Grid pattern */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
-
       {/* Hotel Pins */}
       {hotels.map((hotel, index) => {
-        // Deterministic but random-looking positions
-        const top = 20 + (index * 137) % 60;
-        const left = 20 + (index * 223) % 60;
-        
+        const top = 15 + (index * 137) % 70;
+        const left = 15 + (index * 223) % 70;
+        const isActive = activeHotelId === hotel.id;
+
         return (
           <div
             key={hotel.id}
-            className="absolute cursor-pointer transition-transform hover:scale-110 z-10 group"
+            onClick={() => onPinClick?.(hotel.id)}
+            className={cn(
+              "absolute cursor-pointer transition-all duration-300 z-10 group",
+              isActive ? "z-30 scale-125" : "hover:z-20 hover:scale-110"
+            )}
             style={{ top: `${top}%`, left: `${left}%` }}
           >
-            <div className="bg-white px-2 py-1 rounded-full shadow-md border border-slate-200 flex items-center gap-1 group-hover:bg-primary group-hover:text-white transition-colors">
-              <span className="text-[10px] font-bold leading-none">{(hotel.price / 1000000).toFixed(1)}M</span>
+            <div className={cn(
+              "px-2 py-1 rounded-full shadow-lg border flex items-center gap-1 transition-colors whitespace-nowrap",
+              isActive
+                ? "bg-primary text-white border-primary"
+                : "bg-white text-slate-900 border-slate-200 group-hover:bg-primary group-hover:text-white group-hover:border-primary"
+            )}>
+              <span className="text-[11px] font-bold leading-none">{(hotel.price / 1000000).toFixed(1)}M</span>
             </div>
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-white mx-auto group-hover:border-t-primary transition-colors"></div>
-            
-            {/* Hover Card */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 bg-white rounded-lg shadow-xl border p-2 z-20">
+            <div className={cn(
+              "w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] mx-auto transition-colors",
+              isActive ? "border-t-primary" : "border-t-white group-hover:border-t-primary"
+            )}></div>
+
+            {/* Hover Card (only if not active or show different state) */}
+            <div className={cn(
+              "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-2xl border p-2 z-20 pointer-events-none transition-opacity",
+              isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            )}>
               <img src={hotel.image} className="w-full h-24 object-cover rounded-md mb-2" alt={hotel.name} />
               <p className="text-xs font-bold text-slate-900 truncate">{hotel.name}</p>
-              <p className="text-[10px] text-slate-500">{hotel.price.toLocaleString()} VND</p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-[10px] text-slate-500">{hotel.price.toLocaleString()} VND</p>
+                <div className="flex items-center">
+                   <Star className="h-2 w-2 fill-yellow-400 text-yellow-400" />
+                   <span className="text-[10px] font-bold ml-0.5">{hotel.rating}</span>
+                </div>
+              </div>
             </div>
           </div>
         );

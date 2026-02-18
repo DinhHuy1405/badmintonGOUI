@@ -6,22 +6,39 @@ import { Hotel } from "@/lib/mock-data";
 
 interface HotelCardProps {
   hotel: Hotel;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onShowOnMap?: () => void;
+  isActive?: boolean;
 }
 
-export function HotelCard({ hotel }: HotelCardProps) {
+export function HotelCard({ hotel, onMouseEnter, onMouseLeave, onShowOnMap, isActive }: HotelCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow border-slate-200">
+    <Card
+      className={cn(
+        "overflow-hidden transition-all border-slate-200 cursor-pointer",
+        isActive ? "ring-2 ring-primary shadow-lg" : "hover:shadow-lg hover:border-primary/50"
+      )}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div className="flex flex-col md:flex-row h-full">
         {/* Image Section */}
-        <div className="w-full md:w-64 h-48 md:h-auto shrink-0 overflow-hidden relative">
+        <div className="w-full md:w-64 h-48 md:h-auto shrink-0 overflow-hidden relative group">
           <img
             src={hotel.image}
             alt={hotel.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
-          <Badge className="absolute top-2 left-2 bg-white/90 text-slate-900 border-none">
+          <Badge className="absolute top-2 left-2 bg-white/90 text-slate-900 border-none shadow-sm">
             {hotel.starRating} Stars
           </Badge>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+             <Button variant="white" size="sm" className="rounded-full font-bold h-8 gap-1.5" onClick={(e) => { e.stopPropagation(); onShowOnMap?.(); }}>
+                <MapPin className="h-3.5 w-3.5" />
+                Show on map
+             </Button>
+          </div>
         </div>
 
         {/* Info Section */}
