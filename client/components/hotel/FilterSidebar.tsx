@@ -1,9 +1,8 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Star, Filter, RotateCcw, MapPin, Map, Award, Building2 } from "lucide-react";
+import { Filter, RotateCcw, Map, Award, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FILTERS } from "@/lib/mock-data";
-import { useState } from "react";
 
 export function FilterSidebar({
   onMapView,
@@ -122,27 +121,6 @@ export function FilterSidebar({
         <div className="flex justify-between text-sm font-medium text-slate-600">
           <span>{priceRange[0].toLocaleString()}đ</span>
           <span>{priceRange[1].toLocaleString()}đ</span>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider">Tiện ích</h3>
-        <div className="space-y-3">
-          {FILTERS.amenities.map((amenity) => (
-            <div key={amenity} className="flex items-center gap-2">
-              <Checkbox
-                id={`amenity-${amenity}`}
-                checked={amenities.includes(amenity)}
-                onCheckedChange={() => toggleItem(amenities, setAmenities, amenity)}
-              />
-              <label
-                htmlFor={`amenity-${amenity}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {amenity}
-              </label>
-            </div>
-          ))}
         </div>
       </div>
     </aside>

@@ -1,5 +1,4 @@
-import { Star, MapPin, Check, Heart } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
 import { CourtSlot } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
@@ -10,13 +9,30 @@ interface CompactCourtCardProps {
   variant?: "card" | "carousel";
 }
 
+// Color map for fine-grained skill labels
+const levelColor: Record<string, string> = {
+  "Yếu":  "bg-green-100 text-green-700",
+  "Yếu+": "bg-green-100 text-green-700",
+  "TB-":  "bg-blue-100 text-blue-700",
+  "TB":   "bg-blue-100 text-blue-700",
+  "TB+":  "bg-blue-100 text-blue-700",
+  "Khá-": "bg-orange-100 text-orange-700",
+  "Khá":  "bg-orange-100 text-orange-700",
+  "Khá+": "bg-orange-100 text-orange-700",
+  "Giỏi": "bg-red-100 text-red-700",
+  "Mọi trình độ": "bg-purple-100 text-purple-700",
+};
+
 export function CompactCourtCard({ court, isActive, onClick, variant = "card" }: CompactCourtCardProps) {
-  const levelColor = {
-    "Yếu": "bg-green-100 text-green-700",
-    "TB": "bg-blue-100 text-blue-700",
-    "Khá": "bg-orange-100 text-orange-700",
-    "Mọi trình độ": "bg-purple-100 text-purple-700"
-  };
+  const isFull = court.status === 'full';
+
+  const slotsText = isFull
+    ? '🔴 Full'
+    : court.availableSpots < 0
+      ? 'Hỏi thêm'
+      : court.availableSpots === 0
+        ? 'Liên hệ'
+        : `${court.availableSpots} chỗ`;
 
   return (
     <div
@@ -29,16 +45,17 @@ export function CompactCourtCard({ court, isActive, onClick, variant = "card" }:
     >
       <div className="w-28 h-full shrink-0 relative">
         <img src={court.image} className="w-full h-full object-cover" alt={court.courtName} />
-        <div className={cn("absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold shadow-sm", levelColor[court.skillLevel] || "bg-white")}>
-          {court.skillLevel}
-        </div>
       </div>
       
       <div className="flex-1 p-3 flex flex-col justify-between">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded">{court.rating}</span>
-            <span className="text-[10px] font-bold text-emerald-600 truncate">{court.timeSlot}</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 mb-1">
+            <div className="flex items-center gap-1">
+              {(court.skillLevels && court.skillLevels.length > 0 ? court.skillLevels : [court.skillLevel]).map((lvl) => (
+                <span key={lvl} className={cn("text-[9px] font-black px-2 py-0.5 rounded", levelColor[lvl] ?? "bg-purple-100")}>{lvl}</span>
+              ))}
+            </div>
+            <span className="text-[11px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded">{court.timeSlot}</span>
           </div>
           <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{court.courtName}</h4>
           <div className="flex items-center gap-1 text-[10px] text-slate-500">
@@ -48,11 +65,13 @@ export function CompactCourtCard({ court, isActive, onClick, variant = "card" }:
         </div>
 
         <div className="flex items-end justify-between">
-          <div className="text-[10px] text-slate-400 font-medium">
-             Trống {court.availableSpots} chỗ
+          <div className="text-xs font-black text-orange-600 bg-orange-50 px-2 py-1 rounded">
+             🔥 {slotsText}
           </div>
           <div className="text-right">
-             <p className="text-sm font-bold text-primary">{(court.pricePerHour / 2).toLocaleString()}đ</p>
+             <p className="text-sm font-bold text-primary">
+               {court.pricePerHour > 0 ? `${court.pricePerHour.toLocaleString()}đ` : 'Liên hệ'}
+             </p>
           </div>
         </div>
       </div>
